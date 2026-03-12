@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Котики | Карточки животных</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, system-ui, -apple-system, sans-serif;
+            background: #f3f7fc;
+            color: #1e2b3a;
+            padding: 2rem 1rem;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 500;
+            letter-spacing: -0.02em;
+            margin-bottom: 0.5rem;
+            color: #2c3e50;
+            border-left: 6px solid #ffb347;
+            padding-left: 1.5rem;
+        }
+
+        .subhead {
+            font-size: 1.1rem;
+            color: #4a5f73;
+            margin-bottom: 2.5rem;
+            margin-top: 0.5rem;
+            padding-left: 2rem;
+        }
+
+        .cat-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.8rem;
+            align-items: stretch;
+        }
+
+        .cat-card {
+            background: white;
+            border-radius: 28px 28px 24px 24px;
+            overflow: hidden;
+            box-shadow: 0 10px 20px rgba(0, 20, 30, 0.1), 0 6px 6px rgba(0, 0, 0, 0.03);
+            transition: transform 0.2s ease, box-shadow 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid rgba(255, 180, 70, 0.15);
+        }
+
+        .cat-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 20px 30px rgba(0, 0, 0, 0.1), 0 8px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .card-img {
+            position: relative;
+            height: 220px;
+            background-color: #e2e9f0;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            transition: transform 0.4s ease;
+        }
+
+        .cat-card:hover .card-img {
+            transform: scale(1.02);
+        }
+
+        .card-content {
+            padding: 1.5rem 1.2rem 1.5rem;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: linear-gradient(180deg, #ffffff 0%, #fafcff 100%);
+        }
+
+        .cat-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 0.6rem;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .cat-name {
+            font-size: 1.7rem;
+            font-weight: 600;
+            line-height: 1.2;
+            color: #1f2e3f;
+        }
+
+        .cat-age {
+            background: #e6eef9;
+            padding: 5px 12px;
+            border-radius: 40px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #2b4c6e;
+            white-space: nowrap;
+            border: 1px solid #bdd3e8;
+        }
+
+        .rate-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 12px 0 14px;
+        }
+
+        .stars {
+            display: flex;
+            gap: 4px;
+        }
+
+        .star {
+            font-size: 1.5rem;
+            line-height: 1;
+            color: #d3dde5;
+        }
+
+        .star.filled {
+            color: #ffb347;
+            text-shadow: 0 0 5px #ffb97b;
+        }
+
+        .rate-value {
+            background: #f0f4fa;
+            padding: 4px 12px;
+            border-radius: 30px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            color: #1e3b5c;
+            border: 1px solid #cdddec;
+        }
+
+        .description {
+            font-size: 0.95rem;
+            line-height: 1.5;
+            color: #2e445e;
+            background: #f3f9ff;
+            padding: 1rem 1rem;
+            border-radius: 20px;
+            margin-top: 0.4rem;
+            margin-bottom: 0.2rem;
+            border: 1px solid rgba(165, 180, 200, 0.3);
+            flex: 1;
+        }
+
+        .footer-note {
+            margin-top: 3rem;
+            text-align: center;
+            color: #4f6883;
+            font-size: 0.9rem;
+            border-top: 2px solid #e0eaf3;
+            padding-top: 2rem;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Пушистые друзья</h1>
+    <div class="subhead">Кошки, которые ищут дом · основано на данных friendforpet.ru</div>
+
+    <div class="cat-grid" id="catGrid"></div>
+    <div class="footer-note">
+         Всего анкет: 9 <span id="catCount"></span> · Информация о котиках из файла
+    </div>
+</div>
+
+<script>
+    (function() {
+
+        const cats = [
+            {
+                "name": "Лара",
+                "img_link": "https://www.friendforpet.ru/api/sites/default/files/2021-09/167200DD-A44F-4845-8D4D-ACCFC180165A.jpeg",
+                "age": 8,
+                "rate": 7,
+                "favourite": false,
+                "description": "Лара – шотландская вислоухая, у нее остеохондродисплазия. Лара спокойная, очень ласковая и контактная. Болезнь не лечится и специального ухода не нужно.",
+                "id": 1
+            },
+            {
+                "name": "Базиль",
+                "img_link": "https://www.friendforpet.ru/api/sites/default/files/2022-01/064AEBCB-45EC-4CE7-AB13-C65F10F00B7B.jpeg",
+                "age": 2,
+                "rate": 10,
+                "favourite": false,
+                "description": "Внимательный, активный и ласковый. Любит играть, катать мяч, и мурчать на пледе рядом с людьми! Прилично воспитан, приучен к лотку. Вакцинирован, имеет ветеринарный паспорт.",
+                "id": 2
+            },
+            {
+                "name": "Риш",
+                "img_link": "https://www.friendforpet.ru/api/sites/default/files/2022-01/_DM34706.JPG",
+                "age": 1,
+                "rate": 10,
+                "favourite": true,
+                "description": "Риш любит лесенки, канаты. Очень активный и дружелюбный кот. Риш полностью здоров, привит, кастрирован. Использует лоточек и очень аккуратен.",
+                "id": 3
+            },
+            {
+                "name": "Элли",
+                "img_link": "https://www.friendforpet.ru/api/sites/default/files/2022-01/1_25.jpg",
+                "age": 4,
+                "rate": 8,
+                "favourite": false,
+                "description": "Элли обладает мягким и добрым характером. Очень любит всевозможные лакомства и вкусно покушать. Не доверяет людям, потребуется время, чтобы стать ей другом. Приучена к лотку и когтеточке",
+                "id": 4
+            },
+            {
+                "name": "Чарли",
+                "img_link": "https://www.friendforpet.ru/api/sites/default/files/2022-01/%D0%BB%D0%B5%D0%B2%D0%B83_%D0%B0%D0%BB%D0%B5%D0%BA%D1%81.jpg",
+                "age": 1,
+                "rate": 8,
+                "favourite": false,
+                "description": "Чёрно-белый юный котофилософ очень любит размышлять и быть наедине. Пока что не доверяет людям, не агрессивный. Ладит с другими животными, приучен к лотку и когтеточке",
+                "id": 5
+            },
+            {
+                "name": "Стефани",
+                "img_link": "https://www.friendforpet.ru/api/sites/default/files/2022-01/4_30.jpg",
+                "age": 6,
+                "rate": 9,
+                "favourite": false,
+                "description": "Прелестная Стефани – трогательная, добродушная и очень-очень общительная девочка как никто другой нуждается в заботе и любви. Приучена к лотку и когтеточке",
+                "id": 6
+            },
+            {
+                "name": "Дуся",
+                "img_link": "https://www.friendforpet.ru/api/sites/default/files/2022-02/B1444207-6EE3-4BA4-97F7-2F9666AE2F63.jpeg",
+                "age": 1,
+                "rate": 9,
+                "favourite": false,
+                "description": "Дусеньке около 1 года с небольшим, здорова, привита, стерилизована. Лоточек и когтеточку знает прекрасно. Очень общительная и нежная, хочет постоянного внимания.",
+                "id": 7
+            },
+            {
+                "name": "Бруно",
+                "img_link": "https://www.friendforpet.ru/api/sites/default/files/2022-01/IMG-20211223-WA0049.jpg",
+                "age": 1,
+                "rate": 10,
+                "favourite": false,
+                "description": "Очаровательный активный кот Бруно, находится в постоянном движении! Очаровательный и ласковый кот. Приучен к лотку, ладит с другими котами, привит.",
+                "id": 8
+            },
+            {
+                "name": "Лара",
+                "img_link": "https://www.friendforpet.ru/api/sites/default/files/2022-01/%D1%81%D0%B2%D0%B5%D1%82%D0%BB%D1%8F%D1%87%D0%BE%D0%BA4_%D0%B0%D0%BB%D0%B5%D0%BA%D1%81.jpg",
+                "age": 1,
+                "rate": 9,
+                "favourite": true,
+                "description": "Немного боязливый, но очень добрый и нежный кот Светлячок. Приучен к лотку и когтеточке, ладит с детьми, привит. Станет вам хорошим другом",
+                "id": 9
+            }
+        ];
+
+        function renderStars(rate) {
+            const filledStars = Math.round(rate / 2);
+            const filled = Math.min(5, Math.max(0, filledStars));
+            let starsHtml = '';
+            for (let i = 1; i <= 5; i++) {
+                starsHtml += `<span class="star ${i <= filled ? 'filled' : ''}">★</span>`;
+            }
+            return starsHtml;
+        }
+
+        function formatAge(age) {
+            if (age % 10 === 1 && age % 100 !== 11) return `${age} год`;
+            else if ([2,3,4].includes(age % 10) && ![12,13,14].includes(age % 100)) return `${age} года`;
+            else return `${age} лет`;
+        }
+
+        const grid = document.getElementById('catGrid');
+        const countSpan = document.getElementById('catCount');
+
+        if (!grid) {
+            console.error('Контейнер не найден');
+            return;
+        }
+
+        grid.innerHTML = '';
+
+        cats.forEach(cat => {
+            const card = document.createElement('div');
+            card.className = 'cat-card';
+
+            const imgDiv = document.createElement('div');
+            imgDiv.className = 'card-img';
+            imgDiv.style.backgroundImage = `url('${cat.img_link}')`;
+            imgDiv.style.backgroundSize = 'cover';
+            imgDiv.style.backgroundPosition = 'center';
+            imgDiv.style.backgroundRepeat = 'no-repeat';
+
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'card-content';
+
+            const headerDiv = document.createElement('div');
+            headerDiv.className = 'cat-header';
+
+            const nameSpan = document.createElement('span');
+            nameSpan.className = 'cat-name';
+            nameSpan.innerText = cat.name;
+
+            const ageSpan = document.createElement('span');
+            ageSpan.className = 'cat-age';
+            ageSpan.innerText = formatAge(cat.age);
+
+            headerDiv.appendChild(nameSpan);
+            headerDiv.appendChild(ageSpan);
+
+            const rateRow = document.createElement('div');
+            rateRow.className = 'rate-row';
+
+            const starsDiv = document.createElement('div');
+            starsDiv.className = 'stars';
+            starsDiv.innerHTML = renderStars(cat.rate);
+
+            const rateValueSpan = document.createElement('span');
+            rateValueSpan.className = 'rate-value';
+            rateValueSpan.innerText = `Рейтинг: ${cat.rate}/10`;
+
+            rateRow.appendChild(starsDiv);
+            rateRow.appendChild(rateValueSpan);
+            const descDiv = document.createElement('div');
+            descDiv.className = 'description';
+            descDiv.innerText = cat.description;
+            contentDiv.appendChild(headerDiv);
+            contentDiv.appendChild(rateRow);
+            contentDiv.appendChild(descDiv);
+
+            card.appendChild(imgDiv);
+            card.appendChild(contentDiv);
+
+            grid.appendChild(card);
+        });
+
+        if (countSpan) {
+            countSpan.innerText = cats.length;
+        }
+    })();
+</script>
+<style>
+    .card-img {
+        background-color: #cdddec;
+    }
+</style>
+
+</body>
+</html>
